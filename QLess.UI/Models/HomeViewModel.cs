@@ -8,7 +8,6 @@ namespace QLess.UI
 {
     public class HomeViewModel
     {
-        [Display("Transport Card Number")]
         public string TransportCardNumber { get; set; }
     }
 }

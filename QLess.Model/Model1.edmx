@@ -1,0 +1,232 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="QLessDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="TransportCard">
+          <Key>
+            <PropertyRef Name="TransportCardId" />
+          </Key>
+          <Property Name="TransportCardId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TransportCardNumber" Type="nvarchar" MaxLength="15" />
+          <Property Name="TransportCardRoleId" Type="int" Nullable="false" />
+          <Property Name="CurrentLoad" Type="int" Nullable="false" />
+          <Property Name="LastUsedDate" Type="datetime" Nullable="false" />
+        </EntityType>
+        <EntityType Name="TransportCardLog">
+          <Key>
+            <PropertyRef Name="TransportCardId" />
+          </Key>
+          <Property Name="TransportCardId" Type="int" Nullable="false" />
+          <Property Name="TravelRecord" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="TransportCardRole">
+          <Key>
+            <PropertyRef Name="TransportCardRoleId" />
+          </Key>
+          <Property Name="TransportCardRoleId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TransportCardRoleName" Type="nvarchar" MaxLength="50" />
+          <Property Name="TransportCardRoleDiscount" Type="decimal" Precision="18" Scale="2" />
+        </EntityType>
+        <Association Name="FK_TransportCard_TransportCard">
+          <End Role="TransportCard" Type="Self.TransportCard" Multiplicity="1" />
+          <End Role="TransportCard1" Type="Self.TransportCard" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="TransportCard">
+              <PropertyRef Name="TransportCardId" />
+            </Principal>
+            <Dependent Role="TransportCard1">
+              <PropertyRef Name="TransportCardId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_TransportCard_TransportCardRole">
+          <End Role="TransportCardRole" Type="Self.TransportCardRole" Multiplicity="1" />
+          <End Role="TransportCard" Type="Self.TransportCard" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TransportCardRole">
+              <PropertyRef Name="TransportCardRoleId" />
+            </Principal>
+            <Dependent Role="TransportCard">
+              <PropertyRef Name="TransportCardRoleId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_TransportCardLog_TransportCard">
+          <End Role="TransportCard" Type="Self.TransportCard" Multiplicity="1" />
+          <End Role="TransportCardLog" Type="Self.TransportCardLog" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="TransportCard">
+              <PropertyRef Name="TransportCardId" />
+            </Principal>
+            <Dependent Role="TransportCardLog">
+              <PropertyRef Name="TransportCardId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="QLessDBModelStoreContainer">
+          <EntitySet Name="TransportCard" EntityType="Self.TransportCard" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="TransportCardLog" EntityType="Self.TransportCardLog" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="TransportCardRole" EntityType="Self.TransportCardRole" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_TransportCard_TransportCard" Association="Self.FK_TransportCard_TransportCard">
+            <End Role="TransportCard" EntitySet="TransportCard" />
+            <End Role="TransportCard1" EntitySet="TransportCard" />
+          </AssociationSet>
+          <AssociationSet Name="FK_TransportCard_TransportCardRole" Association="Self.FK_TransportCard_TransportCardRole">
+            <End Role="TransportCardRole" EntitySet="TransportCardRole" />
+            <End Role="TransportCard" EntitySet="TransportCard" />
+          </AssociationSet>
+          <AssociationSet Name="FK_TransportCardLog_TransportCard" Association="Self.FK_TransportCardLog_TransportCard">
+            <End Role="TransportCard" EntitySet="TransportCard" />
+            <End Role="TransportCardLog" EntitySet="TransportCardLog" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="QLessDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="TransportCard">
+          <Key>
+            <PropertyRef Name="TransportCardId" />
+          </Key>
+          <Property Name="TransportCardId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TransportCardNumber" Type="String" MaxLength="15" FixedLength="false" Unicode="true" />
+          <Property Name="TransportCardRoleId" Type="Int32" Nullable="false" />
+          <Property Name="CurrentLoad" Type="Int32" Nullable="false" />
+          <Property Name="LastUsedDate" Type="DateTime" Nullable="false" Precision="3" />
+          <NavigationProperty Name="TransportCard1" Relationship="Self.FK_TransportCard_TransportCard" FromRole="TransportCard" ToRole="TransportCard1" />
+          <NavigationProperty Name="TransportCard2" Relationship="Self.FK_TransportCard_TransportCard" FromRole="TransportCard1" ToRole="TransportCard" />
+          <NavigationProperty Name="TransportCardRole" Relationship="Self.FK_TransportCard_TransportCardRole" FromRole="TransportCard" ToRole="TransportCardRole" />
+          <NavigationProperty Name="TransportCardLog" Relationship="Self.FK_TransportCardLog_TransportCard" FromRole="TransportCard" ToRole="TransportCardLog" />
+        </EntityType>
+        <EntityType Name="TransportCardLog">
+          <Key>
+            <PropertyRef Name="TransportCardId" />
+          </Key>
+          <Property Name="TransportCardId" Type="Int32" Nullable="false" />
+          <Property Name="TravelRecord" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="TransportCard" Relationship="Self.FK_TransportCardLog_TransportCard" FromRole="TransportCardLog" ToRole="TransportCard" />
+        </EntityType>
+        <EntityType Name="TransportCardRole">
+          <Key>
+            <PropertyRef Name="TransportCardRoleId" />
+          </Key>
+          <Property Name="TransportCardRoleId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TransportCardRoleName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="TransportCardRoleDiscount" Type="Decimal" Precision="18" Scale="2" />
+          <NavigationProperty Name="TransportCards" Relationship="Self.FK_TransportCard_TransportCardRole" FromRole="TransportCardRole" ToRole="TransportCard" />
+        </EntityType>
+        <Association Name="FK_TransportCard_TransportCard">
+          <End Role="TransportCard" Type="Self.TransportCard" Multiplicity="1" />
+          <End Role="TransportCard1" Type="Self.TransportCard" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="TransportCard">
+              <PropertyRef Name="TransportCardId" />
+            </Principal>
+            <Dependent Role="TransportCard1">
+              <PropertyRef Name="TransportCardId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_TransportCard_TransportCardRole">
+          <End Role="TransportCardRole" Type="Self.TransportCardRole" Multiplicity="1" />
+          <End Role="TransportCard" Type="Self.TransportCard" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TransportCardRole">
+              <PropertyRef Name="TransportCardRoleId" />
+            </Principal>
+            <Dependent Role="TransportCard">
+              <PropertyRef Name="TransportCardRoleId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_TransportCardLog_TransportCard">
+          <End Role="TransportCard" Type="Self.TransportCard" Multiplicity="1" />
+          <End Role="TransportCardLog" Type="Self.TransportCardLog" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="TransportCard">
+              <PropertyRef Name="TransportCardId" />
+            </Principal>
+            <Dependent Role="TransportCardLog">
+              <PropertyRef Name="TransportCardId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="QLessEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="TransportCards" EntityType="Self.TransportCard" />
+          <EntitySet Name="TransportCardLogs" EntityType="Self.TransportCardLog" />
+          <EntitySet Name="TransportCardRoles" EntityType="Self.TransportCardRole" />
+          <AssociationSet Name="FK_TransportCard_TransportCard" Association="Self.FK_TransportCard_TransportCard">
+            <End Role="TransportCard" EntitySet="TransportCards" />
+            <End Role="TransportCard1" EntitySet="TransportCards" />
+          </AssociationSet>
+          <AssociationSet Name="FK_TransportCard_TransportCardRole" Association="Self.FK_TransportCard_TransportCardRole">
+            <End Role="TransportCardRole" EntitySet="TransportCardRoles" />
+            <End Role="TransportCard" EntitySet="TransportCards" />
+          </AssociationSet>
+          <AssociationSet Name="FK_TransportCardLog_TransportCard" Association="Self.FK_TransportCardLog_TransportCard">
+            <End Role="TransportCard" EntitySet="TransportCards" />
+            <End Role="TransportCardLog" EntitySet="TransportCardLogs" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="QLessDBModelStoreContainer" CdmEntityContainer="QLessEntities">
+          <EntitySetMapping Name="TransportCards">
+            <EntityTypeMapping TypeName="QLessDBModel.TransportCard">
+              <MappingFragment StoreEntitySet="TransportCard">
+                <ScalarProperty Name="TransportCardId" ColumnName="TransportCardId" />
+                <ScalarProperty Name="TransportCardNumber" ColumnName="TransportCardNumber" />
+                <ScalarProperty Name="TransportCardRoleId" ColumnName="TransportCardRoleId" />
+                <ScalarProperty Name="CurrentLoad" ColumnName="CurrentLoad" />
+                <ScalarProperty Name="LastUsedDate" ColumnName="LastUsedDate" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TransportCardLogs">
+            <EntityTypeMapping TypeName="QLessDBModel.TransportCardLog">
+              <MappingFragment StoreEntitySet="TransportCardLog">
+                <ScalarProperty Name="TransportCardId" ColumnName="TransportCardId" />
+                <ScalarProperty Name="TravelRecord" ColumnName="TravelRecord" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TransportCardRoles">
+            <EntityTypeMapping TypeName="QLessDBModel.TransportCardRole">
+              <MappingFragment StoreEntitySet="TransportCardRole">
+                <ScalarProperty Name="TransportCardRoleId" ColumnName="TransportCardRoleId" />
+                <ScalarProperty Name="TransportCardRoleName" ColumnName="TransportCardRoleName" />
+                <ScalarProperty Name="TransportCardRoleDiscount" ColumnName="TransportCardRoleDiscount" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

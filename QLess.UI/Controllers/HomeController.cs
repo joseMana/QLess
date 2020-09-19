@@ -6,7 +6,7 @@ using System.Web.Mvc;
 
 namespace QLess.UI.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : QLessController
     {
         public ActionResult Index()
         {
