@@ -1,0 +1,54 @@
+﻿@model QLess.UI.Models.LoginViewModel
+@{
+    ViewBag.Title = "Log in";
+}
+
+<div class="row">
+    <div class="col-sm-12">
+        <div class="col-sm-6">
+            <h2>QLess</h2>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm-12">
+        <div class="col-sm-12">
+            <div class="col-sm-12">
+                <h4>Login</h4>
+            </div>
+        </div>
+        <div class="col-sm-12">
+            <hr />
+        </div>
+        <section class="col-sm-12">
+            @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+            {
+                <div class="col-sm-6">
+                    @Html.AntiForgeryToken()
+                    <div class="form-group" style="height:26px;">
+                        <div class="col-sm-4"></div>
+                        <div class="col-sm-8">
+                            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.TransportCardNumber, new { @class = "col-sm-4 control-label" })
+                        <div class="col-sm-8">
+                            @Html.TextBoxFor(m => m.TransportCardNumber, new { @class = "form-control", autofocus = "autofocus" })
+                            @Html.ValidationMessageFor(m => m.TransportCardNumber, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-4 col-sm-8">
+                            <input type="submit" value="Log in" class="btn btn-primary" />
+                        </div>
+                    </div>
+                </div>
+            }
+        </section>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}
