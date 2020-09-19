@@ -93,9 +93,7 @@ namespace QLess.UI.Controllers
         }
     }
 
-    public class QLessTransportCardRoleManager
-    {
-    }
+    
 
     public class QLessTransportCardManager : UserManager<TransportCard, int>
     {
@@ -143,6 +141,24 @@ namespace QLess.UI.Controllers
         public Task<SignInStatus> PasswordSignInAsync(string cardNumber)
         {
             throw new NotImplementedException();
+        }
+        public static QLessTransportCardSignInManager Create(IdentityFactoryOptions<QLessTransportCardSignInManager> options, IOwinContext context)
+        {
+            if (context == null) throw new ArgumentNullException(nameof(context));
+            return new QLessTransportCardSignInManager(context.GetUserManager<QLessTransportCardManager>(), context.Authentication);
+        }
+    }
+    public class QLessTransportCardRoleManager : RoleManager<TransportCardRole>
+    {
+        public QLessTransportCardRoleManager(IRoleStore<TransportCardRole> store)
+            : base(store)
+        {
+        }
+        public static QLessTransportCardRoleManager Create(IdentityFactoryOptions<QLessTransportCardRoleManager> options, IOwinContext context)
+        {
+            //context.Get<EngageEntities>()
+            IRoleStore<TransportCardRole> roleStore = new TransportCardRoleStore(context);
+            return new QLessTransportCardRoleManager(roleStore);
         }
     }
 
