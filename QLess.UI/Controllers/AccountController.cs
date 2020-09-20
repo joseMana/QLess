@@ -206,6 +206,7 @@ namespace QLess.UI.Controllers
 
         public async Task CreateAsync(TransportCard card)
         {
+            card.CurrentLoad = 100;
             _db.TransportCards.Add(card);
             await _db.SaveChangesAsync();
         }

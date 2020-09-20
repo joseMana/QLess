@@ -5,6 +5,22 @@
     <!-- SSDL content -->
     <edmx:StorageModels>
     <Schema Namespace="QLessDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <!--Errors Found During Generation:
+warning 6013: The table/view 'QLessDB.dbo.MRTLine2PriceMatrix' does not have a primary key defined and no valid primary key could be inferred. This table/view has been excluded. To use the entity, you will need to review your schema, add the correct keys, and uncomment it.
+        <EntityType Name="MRTLine2PriceMatrix">
+          <Property Name="_Exit" Type="varchar" MaxLength="30" />
+          <Property Name="RECTO" Type="int" />
+          <Property Name="LEGARDA" Type="int" />
+          <Property Name="PUREZA" Type="int" />
+          <Property Name="VMAPA" Type="int" />
+          <Property Name="JRUIZ" Type="int" />
+          <Property Name="GILMORE" Type="int" />
+          <Property Name="BETTYGO" Type="int" />
+          <Property Name="CUBAO" Type="int" />
+          <Property Name="ANONAS" Type="int" />
+          <Property Name="KATIPUNAN" Type="int" />
+          <Property Name="SANTOLAN" Type="int" />
+        </EntityType>-->
         <EntityType Name="TransportCard">
           <Key>
             <PropertyRef Name="TransportCardId" />
@@ -12,13 +28,14 @@
           <Property Name="TransportCardId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="TransportCardNumber" Type="nvarchar" MaxLength="15" />
           <Property Name="TransportCardRoleId" Type="int" Nullable="false" />
-          <Property Name="CurrentLoad" Type="int" Nullable="false" />
           <Property Name="LastUsedDate" Type="datetime" />
           <Property Name="Password" Type="varbinary(max)" Nullable="false" />
           <Property Name="IsPWD" Type="bit" />
           <Property Name="IsSeniorCitizen" Type="bit" />
           <Property Name="SeniorCitizenNumber" Type="varchar" MaxLength="20" />
           <Property Name="PWDNumber" Type="varchar" MaxLength="20" />
+          <Property Name="TodaysNumberOfTravel" Type="int" />
+          <Property Name="CurrentLoad" Type="decimal" Precision="18" Scale="2" />
         </EntityType>
         <EntityType Name="TransportCardLog">
           <Key>
@@ -71,6 +88,10 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Function Name="getMRT2TravelPriceFromPointAtoPointB" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="Entry" Type="nvarchar" Mode="In" />
+          <Parameter Name="Exit" Type="nvarchar" Mode="In" />
+        </Function>
         <EntityContainer Name="QLessDBModelStoreContainer">
           <EntitySet Name="TransportCard" EntityType="Self.TransportCard" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="TransportCardLog" EntityType="Self.TransportCardLog" Schema="dbo" store:Type="Tables" />
@@ -93,6 +114,10 @@
     <edmx:ConceptualModels>
       <Schema Namespace="QLessDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
         <EntityContainer Name="QLessEntities" annotation:LazyLoadingEnabled="true">
+          <FunctionImport Name="getMRT2TravelPriceFromPointAtoPointB">
+            <Parameter Name="Entry" Mode="In" Type="String" />
+            <Parameter Name="Exit" Mode="In" Type="String" />
+          </FunctionImport>
           <EntitySet Name="TransportCards" EntityType="QLessDBModel.TransportCard" />
           <EntitySet Name="TransportCardLogs" EntityType="QLessDBModel.TransportCardLog" />
           <EntitySet Name="TransportCardRoles" EntityType="QLessDBModel.TransportCardRole" />
@@ -108,7 +133,7 @@
             <End Role="TransportCard" EntitySet="TransportCards" />
             <End Role="TransportCardLog" EntitySet="TransportCardLogs" />
           </AssociationSet>
-        </EntityContainer>
+          </EntityContainer>
         <EntityType Name="TransportCard">
           <Key>
             <PropertyRef Name="TransportCardId" />
@@ -116,13 +141,14 @@
           <Property Name="TransportCardId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="TransportCardNumber" Type="String" MaxLength="15" FixedLength="false" Unicode="true" />
           <Property Name="TransportCardRoleId" Type="Int32" Nullable="false" />
-          <Property Name="CurrentLoad" Type="Int32" Nullable="false" />
           <Property Name="LastUsedDate" Type="DateTime" Precision="3" />
           <Property Name="Password" Type="Binary" Nullable="false" MaxLength="Max" FixedLength="false" />
           <Property Name="IsPWD" Type="Boolean" />
           <Property Name="IsSeniorCitizen" Type="Boolean" />
           <Property Name="SeniorCitizenNumber" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Name="PWDNumber" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="TodaysNumberOfTravel" Type="Int32" />
+          <Property Name="CurrentLoad" Type="Decimal" Precision="18" Scale="2" />
           <NavigationProperty Name="TransportCard1" Relationship="QLessDBModel.FK_TransportCard_TransportCard" FromRole="TransportCard" ToRole="TransportCard1" />
           <NavigationProperty Name="TransportCard2" Relationship="QLessDBModel.FK_TransportCard_TransportCard" FromRole="TransportCard1" ToRole="TransportCard" />
           <NavigationProperty Name="TransportCardRole" Relationship="QLessDBModel.FK_TransportCard_TransportCardRole" FromRole="TransportCard" ToRole="TransportCardRole" />
@@ -187,16 +213,18 @@
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
         <EntityContainerMapping StorageEntityContainer="QLessDBModelStoreContainer" CdmEntityContainer="QLessEntities">
+          <FunctionImportMapping FunctionImportName="getMRT2TravelPriceFromPointAtoPointB" FunctionName="QLessDBModel.Store.getMRT2TravelPriceFromPointAtoPointB" />
           <EntitySetMapping Name="TransportCards">
             <EntityTypeMapping TypeName="QLessDBModel.TransportCard">
               <MappingFragment StoreEntitySet="TransportCard">
+                <ScalarProperty Name="CurrentLoad" ColumnName="CurrentLoad" />
+                <ScalarProperty Name="TodaysNumberOfTravel" ColumnName="TodaysNumberOfTravel" />
                 <ScalarProperty Name="PWDNumber" ColumnName="PWDNumber" />
                 <ScalarProperty Name="SeniorCitizenNumber" ColumnName="SeniorCitizenNumber" />
                 <ScalarProperty Name="IsSeniorCitizen" ColumnName="IsSeniorCitizen" />
                 <ScalarProperty Name="IsPWD" ColumnName="IsPWD" />
                 <ScalarProperty Name="Password" ColumnName="Password" />
                 <ScalarProperty Name="LastUsedDate" ColumnName="LastUsedDate" />
-                <ScalarProperty Name="CurrentLoad" ColumnName="CurrentLoad" />
                 <ScalarProperty Name="TransportCardRoleId" ColumnName="TransportCardRoleId" />
                 <ScalarProperty Name="TransportCardNumber" ColumnName="TransportCardNumber" />
                 <ScalarProperty Name="TransportCardId" ColumnName="TransportCardId" />
@@ -220,7 +248,7 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-        </EntityContainerMapping>
+          </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>
   </edmx:Runtime>

@@ -12,6 +12,8 @@ namespace QLess.Model
     using System;
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
+    using System.Data.Entity.Core.Objects;
+    using System.Linq;
     
     public partial class QLessEntities : DbContext
     {
@@ -28,5 +30,17 @@ namespace QLess.Model
         public virtual DbSet<TransportCard> TransportCards { get; set; }
         public virtual DbSet<TransportCardLog> TransportCardLogs { get; set; }
         public virtual DbSet<TransportCardRole> TransportCardRoles { get; set; }
+        public virtual int getMRT2TravelPriceFromPointAtoPointB(string entry, string exit)
+        {
+            var entryParameter = entry != null ?
+                new ObjectParameter("Entry", entry) :
+                new ObjectParameter("Entry", typeof(string));
+    
+            var exitParameter = exit != null ?
+                new ObjectParameter("Exit", exit) :
+                new ObjectParameter("Exit", typeof(string));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("getMRT2TravelPriceFromPointAtoPointB", entryParameter, exitParameter);
+        }
     }
 }

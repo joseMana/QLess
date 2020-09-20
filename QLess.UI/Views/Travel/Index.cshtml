@@ -1,36 +1,108 @@
-﻿@using Microsoft.AspNet.Identity
+﻿@model QLess.UI.Models.TravelViewModel
 @{
-    ViewBag.Title = "Home Page";
+    ViewBag.Title = "Register";
 }
 
-    <div class="jumbotron">
-        <h1>Welcome to QLESS Portal</h1>
-        <h2>Card Number : @User.Identity.GetUserName()</h2>
-        <h2>Card Type : @Model.TransportCardType</h2>
-        <h2>Current Load : @Model.CurrentLoad</h2>
-
-        <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
-        <p><a href="https://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
-    </div>
-
+<h4>Create a new account.</h4>
+<hr />
 <div class="row">
-    <div class="col-md-4">
-        <h2>Getting started</h2>
-        <p>
-            ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
-            enables a clean separation of concerns and gives you full control over markup
-            for enjoyable, agile development.
-        </p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301865">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Get more libraries</h2>
-        <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301866">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Web Hosting</h2>
-        <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301867">Learn more &raquo;</a></p>
+    <div class="form-group">
+        <div class="col-md-6">
+            <label>MRT 1</label>
+            <input type="radio" id="rBtnMrt1"/>
+        </div>
     </div>
 </div>
+<div class="row">
+    <div class="form-group">
+        <div class="col-md-6">
+            <label>MRT 2</label>
+            <input type="radio" id="rBtnMrt2" checked="true"  />
+        </div>
+    </div>
+</div>
+
+<div id="mrt2Container">
+    <div class="row">
+        <div class="form-group">
+            <h4>Entry:</h4>
+            <div class="col-md-6">
+                @Html.DropDownListFor(model => model.Entry, Model.MRT2Stations)
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="form-group">
+            <h4>Exit:</h4>
+            <div class="col-md-6">
+                @Html.DropDownListFor(model => model.Entry, Model.MRT2Stations,new { @id = "Exit"})
+            </div>
+        </div>
+    </div>
+</div>
+<div id="mrt1Container" style="display:none">
+    <h3>MRT 1 development was not finished</h3>
+</div>
+
+<br />
+<div class="row">
+    <div class="form-group">
+        <div class="col-md-6">
+            <input type="button" class="btn btn-default" value="Travel" onclick="onClickValidation()" />
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <script language="javascript">
+        $('input[type=radio]').click(function () {
+            resetSelection();
+
+            var mrtSelection = $(this).attr('id');
+
+            if (mrtSelection === "rBtnMrt1") {
+                document.getElementById('mrt1Container').style.display = 'block';
+                document.getElementById('mrt2Container').style.display = 'none';
+                document.getElementById('rBtnMrt2').checked = false;
+            }
+            else if (mrtSelection === "rBtnMrt2") {
+                document.getElementById('mrt1Container').style.display = 'none';
+                document.getElementById('mrt2Container').style.display = 'block';
+                document.getElementById('rBtnMrt1').checked = false;
+            }
+        });
+
+    function onClickValidation() {
+        var _entry = $('#Entry').val();
+        var _exit = $('#Exit').val();
+
+        $.ajax({
+            dataType: "json",
+            type: 'POST',
+            url: '@Url.Action("AjaxTravelToStation", "Travel")',
+            data: {
+                entry: _entry,
+                exit: _entry
+            },
+            success: function (data) {
+                console.log(data);
+            },
+            error: function () {
+                alert('Error');
+            },
+            complete: function () {
+                setTimeout(function () {
+                    $("#overlay").fadeOut(300);
+                }, 500);
+            },
+            beforeSend: function () {
+                $("#overlay").fadeIn(300);
+            },
+        });
+        }
+
+        function resetSelection() {
+
+        }
+    </script>
+    }

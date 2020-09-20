@@ -10,7 +10,7 @@ namespace QLess.UI.Models
     {
         public string TransportCardNumber { get; set; }
         public string TransportCardType { get; set; }
-        public int CurrentLoad { get; set; }
+        public decimal CurrentLoad { get; set; }
 
     }
 }

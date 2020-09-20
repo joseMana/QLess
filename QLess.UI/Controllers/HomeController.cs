@@ -24,7 +24,7 @@ namespace QLess.UI.Controllers
                 viewModel = new HomeViewModel
                 {
                     TransportCardType = transportRoleName,
-                    CurrentLoad = currentLoad
+                    CurrentLoad = (decimal)currentLoad
                 };
             }
             return View(viewModel);

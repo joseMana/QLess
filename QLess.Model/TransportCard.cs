@@ -11,21 +11,20 @@ namespace QLess.Model
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-
+    
     public partial class TransportCard
     {
         public int TransportCardId { get; set; }
-        [Required]
         public string TransportCardNumber { get; set; }
         public int TransportCardRoleId { get; set; }
-        public int CurrentLoad { get; set; }
         public Nullable<System.DateTime> LastUsedDate { get; set; }
         public byte[] Password { get; set; }
         public Nullable<bool> IsPWD { get; set; }
         public Nullable<bool> IsSeniorCitizen { get; set; }
         public string SeniorCitizenNumber { get; set; }
         public string PWDNumber { get; set; }
+        public Nullable<int> TodaysNumberOfTravel { get; set; }
+        public Nullable<decimal> CurrentLoad { get; set; }
     
         public virtual TransportCard TransportCard1 { get; set; }
         public virtual TransportCard TransportCard2 { get; set; }
