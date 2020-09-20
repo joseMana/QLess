@@ -9,14 +9,9 @@
 
 namespace QLess.Model
 {
-    using Microsoft.AspNet.Identity;
-    using Microsoft.AspNet.Identity.EntityFramework;
-    using Microsoft.Owin;
     using System;
     using System.Collections.Generic;
-    using System.Data.Entity;
-    using System.Threading.Tasks;
-
+    
     public partial class TransportCardRole
     {
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
@@ -24,56 +19,12 @@ namespace QLess.Model
         {
             this.TransportCards = new HashSet<TransportCard>();
         }
-
+    
         public int TransportCardRoleId { get; set; }
         public string TransportCardRoleName { get; set; }
         public Nullable<decimal> TransportCardRoleDiscount { get; set; }
-
+    
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<TransportCard> TransportCards { get; set; }
-    }
-    public partial class TransportCardRole : IdentityRole, IRole<int>
-    {
-        int IRole<int>.Id => TransportCardRoleId;
-    }
-
-    public sealed class TransportCardRoleStore : IRoleStore<TransportCardRole>
-    {
-        private readonly QLessEntities _db;
-
-        public TransportCardRoleStore(IOwinContext context)
-        {
-            _db = context.Get<QLessEntities>();
-        }
-
-        public void Dispose()
-        {
-            _db?.Dispose();
-        }
-
-        public Task CreateAsync(TransportCardRole role)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task UpdateAsync(TransportCardRole role)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task DeleteAsync(TransportCardRole role)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<TransportCardRole> FindByIdAsync(string roleId)
-        {
-            return await _db.TransportCardRoles.FindAsync(roleId);
-        }
-
-        public async Task<TransportCardRole> FindByNameAsync(string roleName)
-        {
-            return await _db.TransportCardRoles.FirstOrDefaultAsync(r => r.TransportCardRoleName == roleName);
-        }
     }
 }

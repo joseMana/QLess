@@ -1,0 +1,87 @@
+﻿@using Microsoft.AspNet.Identity
+@{
+    ViewBag.Title = "Home Page";
+}
+<div class="row">
+    <div class="col-md-4">
+        <label>Load value:</label>
+        <input id="loadValue" type="text" />
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        <label>Cash value:</label>
+        <input id="cashValue" type="text" />
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        <button id="load" onclick="onClickValidation()">Load</button>
+    </div>
+</div>
+
+@section scripts
+{
+    <script language="javascript">
+        //disables string value
+        $(document).ready(function () {
+            $("#loadValue").keypress(function (e) {
+                if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+                    return false;
+                }
+            });
+            $("#cashValue").keypress(function (e) {
+                if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
+                    return false;
+                }
+            });
+        });
+
+        function onClickValidation() {
+            var _loadValue = $('#loadValue').val();
+            var _cashValue = $('#cashValue').val();
+
+            if (_loadValue === "") {
+                alert("Load value field blank.")
+                return;
+            }
+            if (_cashValue === "") {
+                alert("Cash value field blank.")
+                return;
+            }
+            if (parseInt(_loadValue)  > parseInt(_cashValue)) {
+                alert("Cash value has to be greater than Load value");
+                return;
+            }
+            if ((parseInt(_loadValue) < 100) || (parseInt(_cashValue)) > 10000) {
+                alert("Load value should be between the values of 100 and 10,000");
+                return;
+            }
+            
+
+            $.ajax({
+                dataType: "json",
+                type: 'POST',
+                url: '@Url.Action("AjaxLoadTransportCard", "Load")',
+                data: {
+                    loadValue: _loadValue
+                },
+                success: function (data) {
+                    var change = parseInt(_cashValue) - parseInt(_loadValue)
+                    alert("Your change: " + change.toString());
+                },
+                error: function () {
+                    alert('Error');
+                },
+                complete: function () {
+                    setTimeout(function () {
+                        $("#overlay").fadeOut(300);
+                    }, 500);
+                },
+                beforeSend: function () {
+                    $("#overlay").fadeIn(300);
+                },
+            });
+        }
+    </script>
+}

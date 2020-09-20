@@ -1,0 +1,94 @@
+﻿@using QLess.UI.Models
+@model DiscountRegistrationViewModel
+@{
+    ViewBag.Title = "Registration for Discounted Transport Card";
+}
+
+<h2>@ViewBag.Title.</h2>
+<div class="row">
+    <div class="col-md-8">
+        <section id="loginForm">
+            @using (Html.BeginForm("RegisterDiscounted", "Register", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+            {
+                @Html.AntiForgeryToken()
+                <h4>Use a local account to log in.</h4>
+                <hr />
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="form-group">
+                    @Html.LabelFor(m => m.IsPWD, new { @class = "col-md-2 control-label" })
+                    <div class="col-md-10">
+                        @Html.RadioButtonFor(m => m.IsPWD, true)
+                        @Html.ValidationMessageFor(m => m.IsPWD, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.IsSeniorCitizen, new { @class = "col-md-2 control-label" })
+                    <div class="col-md-10">
+                        @Html.RadioButtonFor(m => m.IsSeniorCitizen, true)
+                        @Html.ValidationMessageFor(m => m.IsSeniorCitizen, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.PWDNumber, new { @class = "col-md-2 control-label", @id = "LblPWDNumber" ,@style="display:none;" })
+                    <div class="col-md-10">
+                        @Html.TextBoxFor(m => m.PWDNumber, new { @class = "form-control", @id = "txtPWDNumber" ,@style="display:none;" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.SeniorCitizenControlNumber, new { @class = "col-md-2 control-label",@id = "LblSeniorCitizenNumber",@style="display:none;" })
+                    <div class="col-md-10">
+                        @Html.TextBoxFor(m => m.SeniorCitizenControlNumber, new { @class = "form-control",@id = "txtSeniorCitizenNumber",@style="display:none;" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <input type="submit" value="Register" class="btn btn-default" />
+                    </div>
+                </div>
+            }
+        </section>
+    </div>
+</div>
+
+@section Scripts {
+    <script language="javascript">
+        $('input[type=radio]').click(function () {
+            resetSelection();
+
+            var registrationType = $(this).attr('id');
+
+            if (registrationType === "IsPWD") {
+                document.getElementById('IsPWD').checked = true;
+                $('#LblPWDNumber').css('display', 'block');
+                $('#txtPWDNumber').css('display', 'block');
+            }
+
+            else if (registrationType === "IsSeniorCitizen") {
+                document.getElementById('IsSeniorCitizen').checked = true;
+                $('#LblSeniorCitizenNumber').css('display', 'block');
+                $('#txtSeniorCitizenNumber').css('display', 'block');
+            }
+
+                @*$.ajax({
+                    dataType: "json",
+                    type: 'POST',
+                    url: '@Url.Action("AjaxChangeCountryPaymentMethod", "CountryPaymentMethods")',
+                    data: { countryId: '@Model.Country_ID', paymentMethodId: paymentMethodId, consumerTypeId: consumerTypeId },
+                    error: function () {
+                        alert('Error');
+                    }
+                });*@
+        });
+
+        function resetSelection(){
+            document.getElementById('IsPWD').checked = false;
+            document.getElementById('IsSeniorCitizen').checked = false;
+            $('#txtPWDNumber').css('display', 'none');
+            $('#txtSeniorCitizenNumber').css('display', 'none');
+            $('#LblPWDNumber').css('display', 'none');
+            $('#LblSeniorCitizenNumber').css('display', 'none');
+
+        }
+    </script>
+}

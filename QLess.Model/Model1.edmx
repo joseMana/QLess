@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="QLessDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="QLessDBModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="TransportCard">
           <Key>
             <PropertyRef Name="TransportCardId" />
@@ -13,7 +13,12 @@
           <Property Name="TransportCardNumber" Type="nvarchar" MaxLength="15" />
           <Property Name="TransportCardRoleId" Type="int" Nullable="false" />
           <Property Name="CurrentLoad" Type="int" Nullable="false" />
-          <Property Name="LastUsedDate" Type="datetime" Nullable="false" />
+          <Property Name="LastUsedDate" Type="datetime" />
+          <Property Name="Password" Type="varbinary(max)" Nullable="false" />
+          <Property Name="IsPWD" Type="bit" />
+          <Property Name="IsSeniorCitizen" Type="bit" />
+          <Property Name="SeniorCitizenNumber" Type="varchar" MaxLength="20" />
+          <Property Name="PWDNumber" Type="varchar" MaxLength="20" />
         </EntityType>
         <EntityType Name="TransportCardLog">
           <Key>
@@ -83,11 +88,27 @@
             <End Role="TransportCardLog" EntitySet="TransportCardLog" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="QLessDBModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityContainer Name="QLessEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="TransportCards" EntityType="QLessDBModel.TransportCard" />
+          <EntitySet Name="TransportCardLogs" EntityType="QLessDBModel.TransportCardLog" />
+          <EntitySet Name="TransportCardRoles" EntityType="QLessDBModel.TransportCardRole" />
+          <AssociationSet Name="FK_TransportCard_TransportCard" Association="QLessDBModel.FK_TransportCard_TransportCard">
+            <End Role="TransportCard" EntitySet="TransportCards" />
+            <End Role="TransportCard1" EntitySet="TransportCards" />
+          </AssociationSet>
+          <AssociationSet Name="FK_TransportCard_TransportCardRole" Association="QLessDBModel.FK_TransportCard_TransportCardRole">
+            <End Role="TransportCardRole" EntitySet="TransportCardRoles" />
+            <End Role="TransportCard" EntitySet="TransportCards" />
+          </AssociationSet>
+          <AssociationSet Name="FK_TransportCardLog_TransportCard" Association="QLessDBModel.FK_TransportCardLog_TransportCard">
+            <End Role="TransportCard" EntitySet="TransportCards" />
+            <End Role="TransportCardLog" EntitySet="TransportCardLogs" />
+          </AssociationSet>
+        </EntityContainer>
         <EntityType Name="TransportCard">
           <Key>
             <PropertyRef Name="TransportCardId" />
@@ -96,11 +117,16 @@
           <Property Name="TransportCardNumber" Type="String" MaxLength="15" FixedLength="false" Unicode="true" />
           <Property Name="TransportCardRoleId" Type="Int32" Nullable="false" />
           <Property Name="CurrentLoad" Type="Int32" Nullable="false" />
-          <Property Name="LastUsedDate" Type="DateTime" Nullable="false" Precision="3" />
-          <NavigationProperty Name="TransportCard1" Relationship="Self.FK_TransportCard_TransportCard" FromRole="TransportCard" ToRole="TransportCard1" />
-          <NavigationProperty Name="TransportCard2" Relationship="Self.FK_TransportCard_TransportCard" FromRole="TransportCard1" ToRole="TransportCard" />
-          <NavigationProperty Name="TransportCardRole" Relationship="Self.FK_TransportCard_TransportCardRole" FromRole="TransportCard" ToRole="TransportCardRole" />
-          <NavigationProperty Name="TransportCardLog" Relationship="Self.FK_TransportCardLog_TransportCard" FromRole="TransportCard" ToRole="TransportCardLog" />
+          <Property Name="LastUsedDate" Type="DateTime" Precision="3" />
+          <Property Name="Password" Type="Binary" Nullable="false" MaxLength="Max" FixedLength="false" />
+          <Property Name="IsPWD" Type="Boolean" />
+          <Property Name="IsSeniorCitizen" Type="Boolean" />
+          <Property Name="SeniorCitizenNumber" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="PWDNumber" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="TransportCard1" Relationship="QLessDBModel.FK_TransportCard_TransportCard" FromRole="TransportCard" ToRole="TransportCard1" />
+          <NavigationProperty Name="TransportCard2" Relationship="QLessDBModel.FK_TransportCard_TransportCard" FromRole="TransportCard1" ToRole="TransportCard" />
+          <NavigationProperty Name="TransportCardRole" Relationship="QLessDBModel.FK_TransportCard_TransportCardRole" FromRole="TransportCard" ToRole="TransportCardRole" />
+          <NavigationProperty Name="TransportCardLog" Relationship="QLessDBModel.FK_TransportCardLog_TransportCard" FromRole="TransportCard" ToRole="TransportCardLog" />
         </EntityType>
         <EntityType Name="TransportCardLog">
           <Key>
@@ -108,7 +134,7 @@
           </Key>
           <Property Name="TransportCardId" Type="Int32" Nullable="false" />
           <Property Name="TravelRecord" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="TransportCard" Relationship="Self.FK_TransportCardLog_TransportCard" FromRole="TransportCardLog" ToRole="TransportCard" />
+          <NavigationProperty Name="TransportCard" Relationship="QLessDBModel.FK_TransportCardLog_TransportCard" FromRole="TransportCardLog" ToRole="TransportCard" />
         </EntityType>
         <EntityType Name="TransportCardRole">
           <Key>
@@ -117,11 +143,11 @@
           <Property Name="TransportCardRoleId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="TransportCardRoleName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="TransportCardRoleDiscount" Type="Decimal" Precision="18" Scale="2" />
-          <NavigationProperty Name="TransportCards" Relationship="Self.FK_TransportCard_TransportCardRole" FromRole="TransportCardRole" ToRole="TransportCard" />
+          <NavigationProperty Name="TransportCards" Relationship="QLessDBModel.FK_TransportCard_TransportCardRole" FromRole="TransportCardRole" ToRole="TransportCard" />
         </EntityType>
         <Association Name="FK_TransportCard_TransportCard">
-          <End Role="TransportCard" Type="Self.TransportCard" Multiplicity="1" />
-          <End Role="TransportCard1" Type="Self.TransportCard" Multiplicity="0..1" />
+          <End Type="QLessDBModel.TransportCard" Role="TransportCard" Multiplicity="1" />
+          <End Type="QLessDBModel.TransportCard" Role="TransportCard1" Multiplicity="0..1" />
           <ReferentialConstraint>
             <Principal Role="TransportCard">
               <PropertyRef Name="TransportCardId" />
@@ -132,8 +158,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_TransportCard_TransportCardRole">
-          <End Role="TransportCardRole" Type="Self.TransportCardRole" Multiplicity="1" />
-          <End Role="TransportCard" Type="Self.TransportCard" Multiplicity="*" />
+          <End Type="QLessDBModel.TransportCardRole" Role="TransportCardRole" Multiplicity="1" />
+          <End Type="QLessDBModel.TransportCard" Role="TransportCard" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="TransportCardRole">
               <PropertyRef Name="TransportCardRoleId" />
@@ -144,8 +170,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_TransportCardLog_TransportCard">
-          <End Role="TransportCard" Type="Self.TransportCard" Multiplicity="1" />
-          <End Role="TransportCardLog" Type="Self.TransportCardLog" Multiplicity="0..1" />
+          <End Type="QLessDBModel.TransportCard" Role="TransportCard" Multiplicity="1" />
+          <End Type="QLessDBModel.TransportCardLog" Role="TransportCardLog" Multiplicity="0..1" />
           <ReferentialConstraint>
             <Principal Role="TransportCard">
               <PropertyRef Name="TransportCardId" />
@@ -155,24 +181,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <EntityContainer Name="QLessEntities" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="TransportCards" EntityType="Self.TransportCard" />
-          <EntitySet Name="TransportCardLogs" EntityType="Self.TransportCardLog" />
-          <EntitySet Name="TransportCardRoles" EntityType="Self.TransportCardRole" />
-          <AssociationSet Name="FK_TransportCard_TransportCard" Association="Self.FK_TransportCard_TransportCard">
-            <End Role="TransportCard" EntitySet="TransportCards" />
-            <End Role="TransportCard1" EntitySet="TransportCards" />
-          </AssociationSet>
-          <AssociationSet Name="FK_TransportCard_TransportCardRole" Association="Self.FK_TransportCard_TransportCardRole">
-            <End Role="TransportCardRole" EntitySet="TransportCardRoles" />
-            <End Role="TransportCard" EntitySet="TransportCards" />
-          </AssociationSet>
-          <AssociationSet Name="FK_TransportCardLog_TransportCard" Association="Self.FK_TransportCardLog_TransportCard">
-            <End Role="TransportCard" EntitySet="TransportCards" />
-            <End Role="TransportCardLog" EntitySet="TransportCardLogs" />
-          </AssociationSet>
-        </EntityContainer>
-      </Schema>
+        </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
@@ -181,28 +190,33 @@
           <EntitySetMapping Name="TransportCards">
             <EntityTypeMapping TypeName="QLessDBModel.TransportCard">
               <MappingFragment StoreEntitySet="TransportCard">
-                <ScalarProperty Name="TransportCardId" ColumnName="TransportCardId" />
-                <ScalarProperty Name="TransportCardNumber" ColumnName="TransportCardNumber" />
-                <ScalarProperty Name="TransportCardRoleId" ColumnName="TransportCardRoleId" />
-                <ScalarProperty Name="CurrentLoad" ColumnName="CurrentLoad" />
+                <ScalarProperty Name="PWDNumber" ColumnName="PWDNumber" />
+                <ScalarProperty Name="SeniorCitizenNumber" ColumnName="SeniorCitizenNumber" />
+                <ScalarProperty Name="IsSeniorCitizen" ColumnName="IsSeniorCitizen" />
+                <ScalarProperty Name="IsPWD" ColumnName="IsPWD" />
+                <ScalarProperty Name="Password" ColumnName="Password" />
                 <ScalarProperty Name="LastUsedDate" ColumnName="LastUsedDate" />
+                <ScalarProperty Name="CurrentLoad" ColumnName="CurrentLoad" />
+                <ScalarProperty Name="TransportCardRoleId" ColumnName="TransportCardRoleId" />
+                <ScalarProperty Name="TransportCardNumber" ColumnName="TransportCardNumber" />
+                <ScalarProperty Name="TransportCardId" ColumnName="TransportCardId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="TransportCardLogs">
             <EntityTypeMapping TypeName="QLessDBModel.TransportCardLog">
               <MappingFragment StoreEntitySet="TransportCardLog">
-                <ScalarProperty Name="TransportCardId" ColumnName="TransportCardId" />
                 <ScalarProperty Name="TravelRecord" ColumnName="TravelRecord" />
+                <ScalarProperty Name="TransportCardId" ColumnName="TransportCardId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="TransportCardRoles">
             <EntityTypeMapping TypeName="QLessDBModel.TransportCardRole">
               <MappingFragment StoreEntitySet="TransportCardRole">
-                <ScalarProperty Name="TransportCardRoleId" ColumnName="TransportCardRoleId" />
-                <ScalarProperty Name="TransportCardRoleName" ColumnName="TransportCardRoleName" />
                 <ScalarProperty Name="TransportCardRoleDiscount" ColumnName="TransportCardRoleDiscount" />
+                <ScalarProperty Name="TransportCardRoleName" ColumnName="TransportCardRoleName" />
+                <ScalarProperty Name="TransportCardRoleId" ColumnName="TransportCardRoleId" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

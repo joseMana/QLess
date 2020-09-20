@@ -10,7 +10,6 @@
 namespace QLess.Model
 {
     using System;
-    using System.Collections.Generic;
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
     
@@ -20,10 +19,7 @@ namespace QLess.Model
             : base("name=QLessEntities")
         {
         }
-        public static QLessEntities Create()
-        {
-            return new QLessEntities();
-        }
+    
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             throw new UnintentionalCodeFirstException();
@@ -32,20 +28,5 @@ namespace QLess.Model
         public virtual DbSet<TransportCard> TransportCards { get; set; }
         public virtual DbSet<TransportCardLog> TransportCardLogs { get; set; }
         public virtual DbSet<TransportCardRole> TransportCardRoles { get; set; }
-    }
-
-    public partial class QLessEntities
-    {
-        private int _transportCardId;
-        private readonly DbChangeTracker _tracker;
-        private List<DbEntityEntry> postSaveLog;
-
-        public QLessEntities(int transporcardId)
-           : base("name=QLessEntities")
-        {
-            _transportCardId = transporcardId;
-            _tracker = ChangeTracker;
-            _tracker.DetectChanges();
-        }
     }
 }

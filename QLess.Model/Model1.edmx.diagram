@@ -5,12 +5,12 @@
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
       <Diagram DiagramId="542d3bde2e0a4dfba9528572cc3b97e2" Name="Diagram1">
-        <EntityTypeShape EntityType="QLessDBModel.TransportCard" Width="1.5" PointX="3" PointY="1" IsExpanded="true" />
-        <EntityTypeShape EntityType="QLessDBModel.TransportCardLog" Width="1.5" PointX="5.25" PointY="1.5" IsExpanded="true" />
-        <EntityTypeShape EntityType="QLessDBModel.TransportCardRole" Width="1.5" PointX="0.75" PointY="1.5" IsExpanded="true" />
-        <AssociationConnector Association="QLessDBModel.FK_TransportCard_TransportCard" ManuallyRouted="false" />
-        <AssociationConnector Association="QLessDBModel.FK_TransportCard_TransportCardRole" ManuallyRouted="false" />
-        <AssociationConnector Association="QLessDBModel.FK_TransportCardLog_TransportCard" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="QLessDBModel.TransportCard" Width="1.5" PointX="3" PointY="1" />
+        <EntityTypeShape EntityType="QLessDBModel.TransportCardLog" Width="1.5" PointX="5.25" PointY="2.125" />
+        <EntityTypeShape EntityType="QLessDBModel.TransportCardRole" Width="1.5" PointX="0.75" PointY="2" />
+        <AssociationConnector Association="QLessDBModel.FK_TransportCard_TransportCard" />
+        <AssociationConnector Association="QLessDBModel.FK_TransportCard_TransportCardRole" />
+        <AssociationConnector Association="QLessDBModel.FK_TransportCardLog_TransportCard" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

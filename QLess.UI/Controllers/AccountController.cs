@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using QLess.Model;
+using System.Data.Entity;
 
 namespace QLess.UI.Controllers
 {
@@ -71,7 +72,6 @@ namespace QLess.UI.Controllers
         public ActionResult Login(string returnUrl)
         {
             ViewBag.ReturnUrl = returnUrl;
-
             return View();
         }
         [HttpPost]
@@ -86,15 +86,48 @@ namespace QLess.UI.Controllers
             {
                 case SignInStatus.Success:
                     return RedirectToAction("Index", "Home");
+                    
             }
 
             ModelState.AddModelError("", "Invalid login attempt");
             return View(model);
         }
+
+        [AllowAnonymous]
+        public ActionResult CreateCard()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> CreateCard(RegisterViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = new TransportCard { UserName = model.Email, Email = "QLessUser1@QLess.com", TransportCardRoleId = 1, LastUsedDate = DateTime.Now };
+                var result = await UserManager.CreateAsync(user, model.Password);
+                if (result.Succeeded)
+                {
+                    await SignInManager.SignInAsync(user, isPersistent: false, rememberBrowser: false);
+                 
+                    return RedirectToAction("Index", "Home");
+                }
+                AddErrors(result);
+
+            }
+            // If we got this far, something failed, redisplay form
+            return View(model);
+        }
+        private void AddErrors(IdentityResult result)
+        {
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError("", error);
+            }
+        }
     }
-
-    
-
     public class QLessTransportCardManager : UserManager<TransportCard, int>
     {
         // ReSharper disable MemberCanBePrivate.Global
@@ -130,17 +163,16 @@ namespace QLess.UI.Controllers
             return manager;
         }
     }
-
     public class QLessTransportCardSignInManager : SignInManager<TransportCard, int>
     {
         public QLessTransportCardSignInManager(QLessTransportCardManager userManager, IAuthenticationManager authenticationManager)
-            // ReSharper restore MemberCanBePrivate.Global
             : base(userManager, authenticationManager)
         {
         }
-        public Task<SignInStatus> PasswordSignInAsync(string cardNumber)
+        public async Task<SignInStatus> PasswordSignInAsync(string cardNumber)
         {
-            throw new NotImplementedException();
+            SignInStatus result = await base.PasswordSignInAsync(cardNumber, Constants.TransportCardPassword, false, false);
+            return result;
         }
         public static QLessTransportCardSignInManager Create(IdentityFactoryOptions<QLessTransportCardSignInManager> options, IOwinContext context)
         {
@@ -161,19 +193,6 @@ namespace QLess.UI.Controllers
             return new QLessTransportCardRoleManager(roleStore);
         }
     }
-
-    public partial class TransportCard : IdentityUser<int, EmployeeUserLogin, EmployeeUserRole, EmployeeUserClaim>
-    {
-
-        
-    }
-
-    public class EmployeeUserLogin : IdentityUserLogin<int> { }
-
-    public class EmployeeUserRole : IdentityUserRole<int> { }
-
-    public class EmployeeUserClaim : IdentityUserClaim<int> { }
-
     public sealed class TransportCardStore : IUserLockoutStore<TransportCard, int>, IUserPasswordStore<TransportCard, int>, IUserEmailStore<TransportCard, int>, IUserLoginStore<TransportCard, int>, IUserPhoneNumberStore<TransportCard, int>, IUserTwoFactorStore<TransportCard, int>, IUserRoleStore<TransportCard, int> //, IUserRoleStore<TransportCard>, IUserClaimStore<TransportCard>, 
     {
         private readonly QLessEntities _db;
@@ -183,122 +202,158 @@ namespace QLess.UI.Controllers
             _db = db;
         }
 
+        #region IUserStore
+
+        public async Task CreateAsync(TransportCard card)
+        {
+            _db.TransportCards.Add(card);
+            await _db.SaveChangesAsync();
+        }
+
+        public async Task UpdateAsync(TransportCard card)
+        {
+            _db.Entry(card).State = EntityState.Modified;
+            await _db.SaveChangesAsync();
+        }
+
+        public async Task DeleteAsync(TransportCard card)
+        {
+            TransportCard transportCard = await _db.TransportCards.FindAsync(card.Id);
+            if (transportCard != null) _db.TransportCards.Remove(transportCard);
+            await _db.SaveChangesAsync();
+
+        }
+
+        public async Task<TransportCard> FindByIdAsync(int userId)
+        {
+            return await _db.TransportCards.FindAsync(userId);
+        }
+
+        public async Task<TransportCard> FindByNameAsync(string userName)
+        {
+            return await _db.TransportCards.FirstOrDefaultAsync(e => e.TransportCardNumber == userName);
+        }
+
+        #endregion
+
+        #region IUserLockoutStore
+
+        public async Task<DateTimeOffset> GetLockoutEndDateAsync(TransportCard user)
+        {
+            return await Task.FromResult(false ? DateTimeOffset.Now.AddDays(1) : DateTimeOffset.Now.AddDays(-1));
+        }
+
+        public async Task SetLockoutEndDateAsync(TransportCard user, DateTimeOffset lockoutEnd)
+        {
+        }
+
+        public async Task<int> IncrementAccessFailedCountAsync(TransportCard user)
+        {
+            return 0;
+        }
+
+        public async Task ResetAccessFailedCountAsync(TransportCard user)
+        {
+        }
+
+        public async Task<int> GetAccessFailedCountAsync(TransportCard user)
+        {
+            return await Task.FromResult(0);
+        }
+
+        public async Task<bool> GetLockoutEnabledAsync(TransportCard user)
+        {
+            return await Task.FromResult(false);
+        }
+
+        public async Task SetLockoutEnabledAsync(TransportCard user, bool enabled)
+        {
+        }
+
+        #endregion
+
+        #region IUserPasswordStore
+
+        public async Task SetPasswordHashAsync(TransportCard user, string passwordHash)
+        {
+            if (String.IsNullOrEmpty(passwordHash))
+                throw new ArgumentNullException(passwordHash, "Value cannot be null or empty");
+            byte[] password = Convert.FromBase64String(passwordHash);
+            user.Password = password;
+            await _db.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Gets the given user's password hash.
+        /// </summary>
+        /// <param name="user">The user.</param>
+        /// <returns></returns>
+        public async Task<string> GetPasswordHashAsync(TransportCard user)
+        {
+            string passwordHash = "";
+            if (user.Password != null)
+                passwordHash = Convert.ToBase64String(user.Password);
+            return await Task.FromResult(passwordHash);
+        }
+
+        public async Task<bool> HasPasswordAsync(TransportCard user)
+        {
+            return await Task.FromResult(false);
+        }
+
+        #endregion
+
+        #region IUserEmailStore
+
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+        public async Task SetEmailAsync(TransportCard user, string email)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+        {
+            user.Email = email;
+        }
+
+        public async Task<string> GetEmailAsync(TransportCard user)
+        {
+            return await Task.FromResult(user.Email);
+        }
+
+        public async Task<bool> GetEmailConfirmedAsync(TransportCard user)
+        {
+            return await Task.FromResult(true);
+        }
+
+        public async Task SetEmailConfirmedAsync(TransportCard user, bool confirmed)
+        {
+        }
+
+        public async Task<TransportCard> FindByEmailAsync(string email)
+        {
+            TransportCard result = await _db.TransportCards.FirstOrDefaultAsync();
+            return await Task.FromResult(result);
+
+        }
+
+        #endregion
+
+        #region IUserTwoFactoreStore - not implemented
+
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+        public async Task SetTwoFactorEnabledAsync(TransportCard user, bool enabled)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+        {
+            // do nothing
+        }
+
+        public async Task<bool> GetTwoFactorEnabledAsync(TransportCard user)
+        {
+            return await Task.FromResult(false);
+        }
+
+        #endregion
+
+        #region IUserLoginStore - not implemented
+
         public Task AddLoginAsync(TransportCard user, UserLoginInfo login)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task AddToRoleAsync(TransportCard user, string roleName)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task CreateAsync(TransportCard user)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task DeleteAsync(TransportCard user)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Dispose()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<TransportCard> FindAsync(UserLoginInfo login)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<TransportCard> FindByEmailAsync(string email)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<TransportCard> FindByIdAsync(int userId)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<TransportCard> FindByNameAsync(string userName)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<int> GetAccessFailedCountAsync(TransportCard user)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> GetEmailAsync(TransportCard user)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> GetEmailConfirmedAsync(TransportCard user)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> GetLockoutEnabledAsync(TransportCard user)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<DateTimeOffset> GetLockoutEndDateAsync(TransportCard user)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IList<UserLoginInfo>> GetLoginsAsync(TransportCard user)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> GetPasswordHashAsync(TransportCard user)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<string> GetPhoneNumberAsync(TransportCard user)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> GetPhoneNumberConfirmedAsync(TransportCard user)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IList<string>> GetRolesAsync(TransportCard user)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> GetTwoFactorEnabledAsync(TransportCard user)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> HasPasswordAsync(TransportCard user)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<int> IncrementAccessFailedCountAsync(TransportCard user)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> IsInRoleAsync(TransportCard user, string roleName)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task RemoveFromRoleAsync(TransportCard user, string roleName)
         {
             throw new NotImplementedException();
         }
@@ -308,37 +363,34 @@ namespace QLess.UI.Controllers
             throw new NotImplementedException();
         }
 
-        public Task ResetAccessFailedCountAsync(TransportCard user)
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+        public async Task<IList<UserLoginInfo>> GetLoginsAsync(TransportCard user)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             throw new NotImplementedException();
         }
 
-        public Task SetEmailAsync(TransportCard user, string email)
+        public Task<TransportCard> FindAsync(UserLoginInfo login)
         {
             throw new NotImplementedException();
         }
 
-        public Task SetEmailConfirmedAsync(TransportCard user, bool confirmed)
-        {
-            throw new NotImplementedException();
-        }
+        #endregion
 
-        public Task SetLockoutEnabledAsync(TransportCard user, bool enabled)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task SetLockoutEndDateAsync(TransportCard user, DateTimeOffset lockoutEnd)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task SetPasswordHashAsync(TransportCard user, string passwordHash)
-        {
-            throw new NotImplementedException();
-        }
-
+        #region IUserPhoneNumberStore - not implemented
         public Task SetPhoneNumberAsync(TransportCard user, string phoneNumber)
+        {
+            throw new NotImplementedException();
+        }
+
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+        public async Task<string> GetPhoneNumberAsync(TransportCard user)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> GetPhoneNumberConfirmedAsync(TransportCard user)
         {
             throw new NotImplementedException();
         }
@@ -347,15 +399,57 @@ namespace QLess.UI.Controllers
         {
             throw new NotImplementedException();
         }
+        #endregion
 
-        public Task SetTwoFactorEnabledAsync(TransportCard user, bool enabled)
+        #region IDisposable
+        private bool _disposed;
+        public void Dispose()
+        {
+            Dispose(true);
+            //GC.SuppressFinalize(this);
+        }
+
+
+        private void Dispose(bool disposing)
+        {
+            if (_disposed)
+                return;
+            if (disposing)
+            {
+                // free managed objects
+                _db?.Dispose();
+            }
+            // free unmanaged objects
+            _disposed = true;
+        }
+        #endregion
+
+        public Task AddToRoleAsync(TransportCard user, string roleName)
         {
             throw new NotImplementedException();
         }
 
-        public Task UpdateAsync(TransportCard user)
+        public Task RemoveFromRoleAsync(TransportCard user, string roleName)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<IList<string>> GetRolesAsync(TransportCard user)
+        {
+            IList<string> roles = new List<string>();
+            
+            using(var q = new QLessEntities())
+            {
+                roles.Add(q.TransportCardRoles
+                    .FirstOrDefault(x => x.TransportCardRoleId == user.TransportCardRoleId).TransportCardRoleName);
+            }
+            
+            return await Task.FromResult(roles);
+        }
+
+        public async Task<bool> IsInRoleAsync(TransportCard user, string roleName)
+        {
+            return (await GetRolesAsync(user)).Contains(roleName);
         }
     } 
 }
